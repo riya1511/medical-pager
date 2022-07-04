@@ -1,0 +1,93 @@
+import React from 'react';
+import { Avatar, useChatContext } from 'stream-chat-react';
+
+function TeamChannelPreview({ setActiveChannel, setIsCreating, setIsEditing, setToggleContainer, channel, type }) {
+
+    const { channel: activeChannel, client} = useChatContext();
+
+    console.log(channel);
+
+    const ChannelPreview = () => (
+        <p className='channel-preview__item'>
+          # {channel?.data?.name || channel?.data?.id || 'random'}
+        </p>
+      );
+
+    const DirectPreview = () => {
+        const members = Object.values(channel.state.members).filter(({user}) => user.id !== client.userID);
+
+        console.log(members[0]);
+        // return(
+        //     <div className='channel-preview__item single'>
+        //         <Avatar 
+        //             image={members[0]?.user?.image}
+        //             name={members[0]?.user?.name || members[0]?.user?.id}
+        //             size={24}
+        //         />
+        //         <p>{members[0]?.user?.name || members[0]?.user?.id}</p>
+        //     </div>
+        // )
+
+        const defaultName = "Riya";
+
+        if (!members.length || members.length === 1) {
+            const member = members[0];
+
+            return (
+              <div className='channel-preview__item single'>
+                <Avatar
+                  image={member.user?.image}
+                  name={member.user?.name || member.user?.id}
+                  size={24}
+                />
+                <p>{member?.user?.name || member?.user?.id || defaultName}</p>
+                {/* <TeamTypingIndicator type='list' /> */}
+              </div>
+            );
+          }
+      
+          return (
+            <div className='channel-preview__item multi'>
+              <span>
+                <Avatar
+                  image={members[0].user?.image}
+                  name={members[0].user?.name || members[0].user?.id}
+                  size={18}
+                />
+              </span>
+              <Avatar
+                image={members[1].user?.image}
+                name={members[1].user?.name || members[1].user?.id}
+                size={18}
+              />
+              <p>
+                {members[0].user?.name || members[0].user?.id || defaultName},{' '}
+                {members[1].user?.name || members[1].user?.id || defaultName}
+              </p>
+            </div>
+          );
+        
+    }
+
+  return (
+    <div className={
+        channel?.id === activeChannel?.id
+        ? 'channel-preview__wrapper__selected'
+        : 'channel-preview__wrapper'
+    }
+    onClick={() => {
+        setIsCreating(false);
+        setIsEditing(false);
+        setActiveChannel(channel);
+
+        if(setToggleContainer){
+            setToggleContainer(prevState => !prevState);
+        }
+    }}
+    >
+        {type === 'team' ? <ChannelPreview /> : <DirectPreview />}
+    </div>
+  )
+}
+
+export default TeamChannelPreview
